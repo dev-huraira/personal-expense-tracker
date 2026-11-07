@@ -1,8 +1,11 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
-from app.database import get_db
+from app.database import Base, engine
+from app import models
+from app.routes import auth, users
+
+
+Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
@@ -12,16 +15,20 @@ app = FastAPI(
 )
 
 
+app.include_router(auth.router)
+app.include_router(users.router)
+
+
 @app.get("/")
 def home():
-    return {"message": "Personal Expense Tracker API is running"}
+    return {
+        "message": "Personal Expense Tracker API is running"
+    }
 
 
 @app.get("/health")
-def health_check(db: Session = Depends(get_db)):
-    db.execute(text("SELECT 1"))
-
+def health_check():
     return {
         "status": "ok",
-        "database": "connected",
+        "database": "configured",
     }
