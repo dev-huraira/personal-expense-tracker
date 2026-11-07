@@ -4,6 +4,10 @@ from sqlalchemy import (
     UniqueConstraint,
     CheckConstraint,
 )
+from datetime import date
+from decimal import Decimal
+
+from sqlalchemy import Date, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -65,4 +69,61 @@ class Category(Base):
         ForeignKey("users.id"),
         nullable=False,
         index=True,
+    )
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True,
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+    )
+
+    currency: Mapped[str] = mapped_column(
+        String(3),
+        default="PKR",
+        nullable=False,
+    )
+
+    type: Mapped[str] = mapped_column(
+        String(10),
+        nullable=False,
+    )
+
+    transaction_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+
+    category_id: Mapped[int] = mapped_column(
+        ForeignKey("categories.id"),
+        nullable=False,
+        index=True,
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "amount > 0",
+            name="ck_transaction_amount_positive",
+        ),
+        CheckConstraint(
+            "type IN ('income', 'expense')",
+            name="ck_transaction_type",
+        ),
     )
