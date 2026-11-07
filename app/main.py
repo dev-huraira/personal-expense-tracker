@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.database import Base, engine
 from app import models
-from app.routes import auth, users, categories, transactions, summary
+from app.routes import auth, users, categories, transactions, summary,currency
 
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +20,7 @@ app.include_router(users.router)
 app.include_router(categories.router)
 app.include_router(transactions.router)
 app.include_router(summary.router)
+app.include_router(currency.router)
 
 
 @app.get("/")
